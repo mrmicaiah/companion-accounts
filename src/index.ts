@@ -7,9 +7,10 @@ import { handleTrialRoutes } from './routes/trial';
 import { handleAccessRoutes } from './routes/access';
 import { handleLinkRoutes } from './routes/link';
 import { handleSubscriptionRoutes } from './routes/subscription';
+import { handleScheduled } from './scheduled';
 
 const VERSION = {
-  version: '1.0.0',
+  version: '1.1.0',
   service: 'companion-accounts'
 };
 
@@ -73,6 +74,10 @@ export default {
       console.error('Unhandled error:', error);
       return json({ error: 'Internal server error' }, 500);
     }
+  },
+
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(handleScheduled(env));
   }
 };
 
