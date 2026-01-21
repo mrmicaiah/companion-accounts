@@ -16,6 +16,13 @@ export interface Env {
   ELLIOTT_URL?: string;
   CLARA_URL?: string;
   SEAN_URL?: string;
+  // Bot tokens for cron follow-ups
+  COLE_BOT_TOKEN?: string;
+  NORA_BOT_TOKEN?: string;
+  ELLIOTT_BOT_TOKEN?: string;
+  CLARA_BOT_TOKEN?: string;
+  SEAN_BOT_TOKEN?: string;
+  SADIE_BOT_TOKEN?: string;
 }
 
 export type Character = 'sadie' | 'cole' | 'nora' | 'elliott' | 'clara' | 'sean';
@@ -62,6 +69,8 @@ export interface Trial {
   chat_id: string;
   character: Character;
   messages_remaining: number;
+  trial_exhausted_at: string | null;
+  bump_given: number;
   created_at: string;
 }
 
