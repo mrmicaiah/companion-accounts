@@ -8,6 +8,9 @@ binding = "DB"
 database_name = "companion-accounts-db"
 database_id = "2d2a3ade-344e-499f-97bd-9894753595ae"
 
+[triggers]
+crons = ["0 */6 * * *"]
+
 [vars]
 # Character worker URLs for activation callbacks
 SADIE_URL = "https://companion-sadie.mrmicaiah.workers.dev"
@@ -23,3 +26,9 @@ SEAN_URL = "https://companion-sean.mrmicaiah.workers.dev"
 # - RESEND_API_KEY
 # - MAGIC_LINK_SECRET
 # - INTERNAL_API_KEY
+# - COLE_BOT_TOKEN
+# - NORA_BOT_TOKEN
+# - ELLIOTT_BOT_TOKEN
+# - CLARA_BOT_TOKEN
+# - SEAN_BOT_TOKEN
+# - SADIE_BOT_TOKEN
