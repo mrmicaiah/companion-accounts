@@ -14,42 +14,52 @@ export async function handleTrialRoutes(
   
   // POST /trial/check - Check trial status
   if (path === '/trial/check' && request.method === 'POST') {
-    const body = await request.json() as { chatId: string; character: Character };
-    
-    if (!body.chatId || !body.character) {
-      return json({ error: 'Missing chatId or character' }, 400);
+    try {
+      const body = await request.json() as { chatId: string; character: Character };
+      
+      if (!body.chatId || !body.character) {
+        return json({ error: 'Missing chatId or character' }, 400);
+      }
+
+      const trial = await getOrCreateTrial(env.DB, body.chatId, body.character);
+      
+      const result: TrialCheckResult = {
+        hasTrialRemaining: trial.messages_remaining > 0,
+        messagesRemaining: trial.messages_remaining,
+        isNewTrial: trial.messages_remaining === 25
+      };
+
+      return json(result);
+    } catch (error) {
+      console.error('Trial check error:', error);
+      return json({ error: 'Trial check failed', details: String(error) }, 500);
     }
-
-    const trial = await getOrCreateTrial(env.DB, body.chatId, body.character);
-    
-    const result: TrialCheckResult = {
-      hasTrialRemaining: trial.messages_remaining > 0,
-      messagesRemaining: trial.messages_remaining,
-      isNewTrial: trial.messages_remaining === 25
-    };
-
-    return json(result);
   }
 
   // POST /trial/decrement - Use a trial message
   if (path === '/trial/decrement' && request.method === 'POST') {
-    const body = await request.json() as { chatId: string; character: Character };
-    
-    if (!body.chatId || !body.character) {
-      return json({ error: 'Missing chatId or character' }, 400);
+    try {
+      const body = await request.json() as { chatId: string; character: Character };
+      
+      if (!body.chatId || !body.character) {
+        return json({ error: 'Missing chatId or character' }, 400);
+      }
+
+      // Ensure trial exists
+      await getOrCreateTrial(env.DB, body.chatId, body.character);
+      
+      // Decrement and get remaining
+      const remaining = await decrementTrial(env.DB, body.chatId, body.character);
+
+      return json({ 
+        success: true, 
+        messagesRemaining: remaining,
+        trialExpired: remaining === 0
+      });
+    } catch (error) {
+      console.error('Trial decrement error:', error);
+      return json({ error: 'Trial decrement failed', details: String(error) }, 500);
     }
-
-    // Ensure trial exists
-    await getOrCreateTrial(env.DB, body.chatId, body.character);
-    
-    // Decrement and get remaining
-    const remaining = await decrementTrial(env.DB, body.chatId, body.character);
-
-    return json({ 
-      success: true, 
-      messagesRemaining: remaining,
-      trialExpired: remaining === 0
-    });
   }
 
   return json({ error: 'Not found' }, 404);
