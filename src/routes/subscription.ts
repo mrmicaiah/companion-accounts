@@ -6,24 +6,15 @@ import { Env, Character } from '../types';
 import { json } from '../index';
 import { generateId, createAccount, getAccountByEmail, addCharacterToAccount, updateAccountStatus } from '../db/queries';
 
-// Price IDs from Stripe
+// Price IDs from Stripe (TEST MODE)
 const PRICE_IDS = {
-  single_monthly: 'price_1Ss994HSBCQi9g6mLfzrYEBk',
-  single_yearly: 'price_1Ss99eHSBCQi9g6m68EtE3f0',
-  duo_monthly: 'price_1Ss9AlHSBCQi9g6mUvAfRttC',
-  duo_yearly: 'price_1Ss9B3HSBCQi9g6mjh4X21nD',
-  inner_monthly: 'price_1Ss9CPHSBCQi9g6m8WVfLvne',
-  inner_yearly: 'price_1Ss9BjHSBCQi9g6mwoGXr548',
+  single_monthly: 'price_1Ss9aYHSBCQi9g6mAxPYQJS4',
+  // Add more test prices as needed
 };
 
 // Map price to tier (number of companions)
 const PRICE_TO_TIER: Record<string, number> = {
   [PRICE_IDS.single_monthly]: 1,
-  [PRICE_IDS.single_yearly]: 1,
-  [PRICE_IDS.duo_monthly]: 2,
-  [PRICE_IDS.duo_yearly]: 2,
-  [PRICE_IDS.inner_monthly]: 6,
-  [PRICE_IDS.inner_yearly]: 6,
 };
 
 // Pricing display info
@@ -53,9 +44,10 @@ export async function handleSubscriptionRoutes(
     const body = await request.json() as {
       email: string;
       priceId: string;
-      characters: string[];
-      successUrl: string;
-      cancelUrl: string;
+      tier?: number;
+      characters?: string[];
+      successUrl?: string;
+      cancelUrl?: string;
       chatId?: string;
       character?: string;
     };
@@ -64,10 +56,8 @@ export async function handleSubscriptionRoutes(
       return json({ error: 'Missing email or priceId' }, 400);
     }
 
-    const tier = PRICE_TO_TIER[body.priceId];
-    if (!tier) {
-      return json({ error: 'Invalid price ID' }, 400);
-    }
+    // Get tier from mapping or from request body, default to 1
+    const tier = PRICE_TO_TIER[body.priceId] || body.tier || 1;
 
     try {
       // Create Stripe checkout session
