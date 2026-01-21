@@ -201,7 +201,8 @@ export async function createPendingLink(
   chatId: string,
   character: Character,
   token: string,
-  expiresAt: string
+  expiresAt: string,
+  firstName?: string
 ): Promise<PendingLink> {
   const id = generateId();
   const now = new Date().toISOString();
@@ -213,11 +214,11 @@ export async function createPendingLink(
     .run();
 
   await db
-    .prepare('INSERT INTO pending_links (id, email, chat_id, character, token, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
-    .bind(id, email, chatId, character, token, expiresAt, now)
+    .prepare('INSERT INTO pending_links (id, email, chat_id, character, first_name, token, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    .bind(id, email, chatId, character, firstName ?? null, token, expiresAt, now)
     .run();
 
-  return { id, email, chat_id: chatId, character, token, expires_at: expiresAt, created_at: now };
+  return { id, email, chat_id: chatId, character, first_name: firstName, token, expires_at: expiresAt, created_at: now };
 }
 
 export async function getPendingLinkByToken(

@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS pending_links (
   email TEXT NOT NULL,
   chat_id TEXT NOT NULL,
   character TEXT NOT NULL,
+  first_name TEXT,
   token TEXT UNIQUE NOT NULL,
   expires_at TEXT NOT NULL,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
