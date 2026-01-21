@@ -10,12 +10,12 @@ database_id = "2d2a3ade-344e-499f-97bd-9894753595ae"
 
 [vars]
 # Character worker URLs for activation callbacks
-SADIE_URL = "https://companion-sadie.micaiah-c98.workers.dev"
-COLE_URL = "https://companion-cole.micaiah-c98.workers.dev"
-NORA_URL = "https://companion-nora.micaiah-c98.workers.dev"
-ELLIOTT_URL = "https://companion-elliott.micaiah-c98.workers.dev"
-CLARA_URL = "https://companion-clara.micaiah-c98.workers.dev"
-SEAN_URL = "https://companion-sean.micaiah-c98.workers.dev"
+SADIE_URL = "https://companion-sadie.mrmicaiah.workers.dev"
+COLE_URL = "https://companion-cole.mrmicaiah.workers.dev"
+NORA_URL = "https://companion-nora.mrmicaiah.workers.dev"
+ELLIOTT_URL = "https://companion-elliott.mrmicaiah.workers.dev"
+CLARA_URL = "https://companion-clara.mrmicaiah.workers.dev"
+SEAN_URL = "https://companion-sean.mrmicaiah.workers.dev"
 
 # Secrets (set via wrangler CLI):
 # - STRIPE_SECRET_KEY
