@@ -6,9 +6,16 @@ export interface Env {
   DB: D1Database;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
-  SENDGRID_API_KEY: string;
+  RESEND_API_KEY: string;
   MAGIC_LINK_SECRET: string;
   INTERNAL_API_KEY: string;
+  // Character worker URLs for callbacks
+  SADIE_URL?: string;
+  COLE_URL?: string;
+  NORA_URL?: string;
+  ELLIOTT_URL?: string;
+  CLARA_URL?: string;
+  SEAN_URL?: string;
 }
 
 export type Character = 'sadie' | 'cole' | 'nora' | 'elliott' | 'clara' | 'sean';
@@ -44,6 +51,7 @@ export interface PendingLink {
   email: string;
   chat_id: string;
   character: Character;
+  first_name?: string;
   token: string;
   expires_at: string;
   created_at: string;
@@ -87,6 +95,7 @@ export interface TrialCheckResult {
 export interface InitiateLinkResult {
   success: boolean;
   message: string;
+  token?: string;
 }
 
 export interface VerifyLinkResult {
@@ -94,5 +103,6 @@ export interface VerifyLinkResult {
   email?: string;
   chatId?: string;
   character?: Character;
+  firstName?: string;
   error?: string;
 }

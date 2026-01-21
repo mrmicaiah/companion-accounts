@@ -14,8 +14,17 @@ import {
   addCharacterToAccount,
   cleanExpiredPendingLinks
 } from '../db/queries';
-import { generateMagicToken, verifyMagicToken } from '../services/token';
+import { generateMagicToken } from '../services/token';
 import { sendMagicLinkEmail } from '../services/email';
+
+const CHARACTER_URLS: Record<Character, keyof Env> = {
+  sadie: 'SADIE_URL',
+  cole: 'COLE_URL',
+  nora: 'NORA_URL',
+  elliott: 'ELLIOTT_URL',
+  clara: 'CLARA_URL',
+  sean: 'SEAN_URL'
+};
 
 export async function handleLinkRoutes(
   request: Request,
@@ -28,7 +37,8 @@ export async function handleLinkRoutes(
     const body = await request.json() as { 
       email: string; 
       chatId: string; 
-      character: Character 
+      character: Character;
+      firstName?: string;
     };
     
     if (!body.email || !body.chatId || !body.character) {
@@ -48,25 +58,27 @@ export async function handleLinkRoutes(
     const token = await generateMagicToken(env.MAGIC_LINK_SECRET);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-    // Store pending link
+    // Store pending link with firstName
     await createPendingLink(
       env.DB,
       body.email.toLowerCase().trim(),
       body.chatId,
       body.character,
       token,
-      expiresAt
+      expiresAt,
+      body.firstName
     );
 
     // Send email with magic link
-    const magicLink = `https://companions.untitledpublishers.com/verify?token=${token}`;
+    const magicLink = `https://topfivefriends.com/magic/${token}`;
     
     try {
       await sendMagicLinkEmail(
-        env.SENDGRID_API_KEY,
+        env.RESEND_API_KEY,
         body.email,
         body.character,
-        magicLink
+        magicLink,
+        body.firstName
       );
     } catch (error) {
       console.error('Failed to send email:', error);
@@ -78,7 +90,8 @@ export async function handleLinkRoutes(
 
     const result: InitiateLinkResult = {
       success: true,
-      message: 'Magic link sent! Check your email.'
+      message: 'Magic link sent! Check your email.',
+      token // Return token so character worker can track it
     };
     return json(result);
   }
@@ -112,7 +125,8 @@ export async function handleLinkRoutes(
       valid: true,
       email: pending.email,
       chatId: pending.chat_id,
-      character: pending.character
+      character: pending.character,
+      firstName: pending.first_name
     };
     return json(result);
   }
@@ -155,6 +169,26 @@ export async function handleLinkRoutes(
       .prepare('UPDATE accounts SET subscription_status = ?, updated_at = ? WHERE id = ?')
       .bind('active', new Date().toISOString(), account.id)
       .run();
+
+    // Notify the character worker to activate the user
+    const characterUrlKey = CHARACTER_URLS[pending.character];
+    const characterUrl = env[characterUrlKey] as string | undefined;
+    
+    if (characterUrl) {
+      try {
+        await fetch(`${characterUrl}/billing/activate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: pending.chat_id,
+            account_id: account.id,
+            email: pending.email
+          })
+        });
+      } catch (e) {
+        console.error('Failed to notify character worker:', e);
+      }
+    }
 
     // Clean up pending link
     await deletePendingLink(env.DB, pending.id);
