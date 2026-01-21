@@ -60,11 +60,11 @@ interface TrialDecrementResult {
 const TRIAL_MESSAGE_LIMIT = 25;
 const SESSION_TIMEOUT_MS = 45 * 60 * 1000;
 const EXTRACTION_DELAY_MS = 15 * 60 * 1000;
-const CHARACTER_NAME = 'clara';
+const CHARACTER_NAME = 'sean';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-export class ClaraAgent {
+export class SeanAgent {
   private state: DurableObjectState;
   private env: Env;
   private sql: SqlStorage;
