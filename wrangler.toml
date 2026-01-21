@@ -6,7 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "companion-accounts-db"
-database_id = "placeholder-will-update-after-creation"
+database_id = "2d2a3ade-344e-499f-97bd-9894753595ae"
 
 # Secrets (set via wrangler CLI):
 # - STRIPE_SECRET_KEY
