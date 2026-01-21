@@ -38,6 +38,8 @@ export async function getOrCreateTrial(
     chat_id: chatId,
     character,
     messages_remaining: 25,
+    trial_exhausted_at: null,
+    bump_given: 0,
     created_at: new Date().toISOString()
   };
 }
@@ -57,7 +59,28 @@ export async function decrementTrial(
     .bind(chatId, character)
     .first<{ messages_remaining: number }>();
 
-  return trial?.messages_remaining ?? 0;
+  const remaining = trial?.messages_remaining ?? 0;
+
+  // If trial just hit 0, set the exhausted timestamp
+  if (remaining === 0) {
+    await db
+      .prepare('UPDATE trials SET trial_exhausted_at = ? WHERE chat_id = ? AND character = ? AND trial_exhausted_at IS NULL')
+      .bind(new Date().toISOString(), chatId, character)
+      .run();
+  }
+
+  return remaining;
+}
+
+export async function getTrialStatus(
+  db: D1Database,
+  chatId: string,
+  character: Character
+): Promise<Trial | null> {
+  return db
+    .prepare('SELECT * FROM trials WHERE chat_id = ? AND character = ?')
+    .bind(chatId, character)
+    .first<Trial>();
 }
 
 // ==================== ACCOUNTS ====================
